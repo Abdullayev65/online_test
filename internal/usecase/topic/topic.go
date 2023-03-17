@@ -8,10 +8,14 @@ import (
 )
 
 type UseCase struct {
-	Svc *topic_srvc.Service
+	Svc Topic
 }
 
-func (u *UseCase) Create(c context.Context, create *topic_srvc.Create, userID int) (*topic_srvc.DTO, error) {
+func NewUseCase(svc Topic) *UseCase {
+	return &UseCase{Svc: svc}
+}
+
+func (u *UseCase) Create(c context.Context, create *topic_srvc.Create, userID int) (*topic_srvc.TopicDetail, error) {
 	if create.Name == "" {
 		return nil, errors.New("name can not be null or blank")
 	}
@@ -21,19 +25,17 @@ func (u *UseCase) Create(c context.Context, create *topic_srvc.Create, userID in
 	if err != nil {
 		return nil, err
 	}
-	dto := topic_srvc.NewDTO(topic)
+	dto := topic_srvc.NewDetail(topic)
 	return dto, nil
 }
-
-func (u *UseCase) TopicByID(c context.Context, id int) (*topic_srvc.DTO, error) {
+func (u *UseCase) TopicByID(c context.Context, id int) (*topic_srvc.TopicDetail, error) {
 	topic, err := u.Svc.TopicByID(c, id)
 	if err != nil {
 		return nil, err
 	}
-	dto := topic_srvc.NewDTO(topic)
+	dto := topic_srvc.NewDetail(topic)
 	return dto, nil
 }
-
 func (u *UseCase) UpdateTopic(c context.Context, id int, update *topic_srvc.Update) error {
 	if update.Name == nil {
 		return errors.New("nothing to update")
@@ -44,24 +46,18 @@ func (u *UseCase) UpdateTopic(c context.Context, id int, update *topic_srvc.Upda
 	}
 	return nil
 }
-
-func (u *UseCase) ListTopic(c context.Context, size int, page int) ([]topic_srvc.DTO, error) {
+func (u *UseCase) ListTopic(c context.Context, size int, page int) ([]topic_srvc.TopicDetail, error) {
 	listTopic, err := u.Svc.ListTopic(c, size, page)
 	if err != nil {
 		return nil, err
 	}
-	dtos := make([]topic_srvc.DTO, 0)
+	dtos := make([]topic_srvc.TopicDetail, 0)
 	for _, topic := range listTopic {
 		t := topic
-		dtos = append(dtos, *topic_srvc.NewDTO(&t))
+		dtos = append(dtos, *topic_srvc.NewDetail(&t))
 	}
 	return dtos, nil
 }
-
 func (u *UseCase) DeleteTopic(c context.Context, id int, userID int) error {
 	return u.Svc.DeleteTopic(c, id, userID)
-}
-
-func NewUseCase(svc *topic_srvc.Service) *UseCase {
-	return &UseCase{Svc: svc}
 }

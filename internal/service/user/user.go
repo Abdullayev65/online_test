@@ -25,3 +25,7 @@ func (s *Service) UserUpdate(c context.Context, userID int, ua *Update) error {
 func (s *Service) AddUser(c context.Context, user *entity.User) error {
 	return s.repo.AddUser(c, user)
 }
+
+func (s *Service) Service_() {
+	s.repo.Repository_()
+}

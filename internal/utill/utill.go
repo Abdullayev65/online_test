@@ -8,3 +8,11 @@ func AnyNotNil(all ...interface{}) bool {
 	}
 	return false
 }
+func AnyNil(all ...interface{}) bool {
+	for _, a := range all {
+		if a == nil {
+			return true
+		}
+	}
+	return false
+}

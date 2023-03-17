@@ -17,6 +17,7 @@ func NewRepository(DB *bun.DB) *Repository {
 }
 
 func (r *Repository) Repository_() {
+
 }
 func (r *Repository) UserByUsername(c context.Context, username string) (*entity.User, error) {
 	user := new(entity.User)

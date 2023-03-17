@@ -1,4 +1,4 @@
-package topic_service
+package topic_srvc
 
 import (
 	"context"
@@ -28,4 +28,7 @@ func (s *Service) ListTopic(c context.Context, size, page int) ([]entity.Topic, 
 
 func (s *Service) DeleteTopic(c context.Context, id int, userID int) error {
 	return s.repo.DeleteTopic(c, id, userID)
+}
+func (s *Service) Service_() {
+	s.repo.Repository_()
 }

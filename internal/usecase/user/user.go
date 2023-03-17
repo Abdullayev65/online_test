@@ -9,11 +9,11 @@ import (
 )
 
 type UseCase struct {
-	Svc      *user_service.Service
+	Svc      User
 	TokenJWT *utill.TokenJWT
 }
 
-func NewUseCase(svc *user_service.Service, tokenJWT *utill.TokenJWT) *UseCase {
+func NewUseCase(svc User, tokenJWT *utill.TokenJWT) *UseCase {
 	return &UseCase{Svc: svc, TokenJWT: tokenJWT}
 }
 

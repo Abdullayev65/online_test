@@ -1,4 +1,4 @@
-package topic_service
+package topic_srvc
 
 import (
 	"context"

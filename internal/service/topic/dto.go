@@ -1,4 +1,4 @@
-package topic_service
+package topic_srvc
 
 import "github.com/Abdullayev65/online_test/internal/entity"
 
@@ -8,11 +8,11 @@ type Create struct {
 type Update struct {
 	Name *string `json:"name"`
 }
-type DTO struct {
+type TopicDetail struct {
 	ID   *int    `json:"id"`
 	Name *string `json:"name"`
 }
 
-func NewDTO(ent *entity.Topic) *DTO {
-	return &DTO{ID: &ent.ID, Name: &ent.Name}
+func NewDetail(ent *entity.Topic) *TopicDetail {
+	return &TopicDetail{ID: &ent.ID, Name: &ent.Name}
 }

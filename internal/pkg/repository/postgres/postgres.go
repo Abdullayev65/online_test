@@ -16,10 +16,10 @@ var (
 )
 
 func New() *bun.DB {
-	dsn := "postgres:root123//postgres:localhost:5432/postgres?sslmode=disable"
-	pgdb := sql.OpenDB(pgdriver.NewConnector(pgdriver.WithDSN(dsn)))
+	dsn := "postgres://postgres:1@localhost:5432?sslmode=disable"
+	sqldb := sql.OpenDB(pgdriver.NewConnector(pgdriver.WithDSN(dsn)))
 
-	db := bun.NewDB(pgdb, pgdialect.New())
+	db := bun.NewDB(sqldb, pgdialect.New())
 
 	if debugging {
 		db.AddQueryHook(bundebug.NewQueryHook(bundebug.WithVerbose(true)))
@@ -32,6 +32,8 @@ func New() *bun.DB {
 		(*entity.Topic)(nil),
 		(*entity.Question)(nil),
 		(*entity.Answer)(nil),
+		(*entity.Variant)(nil),
+		(*entity.VariantQuestion)(nil),
 	}
 	if resetModel {
 		db.ResetModel(ctx, ms...)

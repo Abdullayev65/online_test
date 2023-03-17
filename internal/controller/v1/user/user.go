@@ -43,7 +43,7 @@ func (cc *Controller) UserMe(ctx *gin.Context) {
 		response.FailErr(ctx, err)
 		return
 	}
-	userDTO := user_service.NewUserDTO(user)
+	userDTO := user_service.NewUserDetail(user)
 	response.Success(ctx, userDTO)
 }
 func (cc *Controller) UpdateUser(ctx *gin.Context) {
