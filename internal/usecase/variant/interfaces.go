@@ -25,3 +25,7 @@ type Question interface {
 	QuestionByIDs(c context.Context, ids []int) ([]entity.Question, error)
 	Service_()
 }
+type Answer interface {
+	AnswersByQuestionID(c context.Context, questionID int) ([]entity.Answer, error)
+	Service_()
+}

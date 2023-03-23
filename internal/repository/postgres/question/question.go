@@ -17,23 +17,19 @@ func NewRepository(DB *bun.DB) *Repository {
 }
 
 func (r *Repository) CreateQuestion(c context.Context,
-	data *question_srvc.Create, userID int) (*entity.Question, error) {
+	data *question_srvc.Create) (*entity.Question, error) {
 
 	m := new(entity.Question)
-	if data.Text != nil {
-		m.Text = *data.Text
-	}
-	if data.Description != nil {
-		m.Description = *data.Description
-	}
-	if data.TopicID != nil {
-		m.TopicID = *data.TopicID
-	}
-	m.CreatedBy = userID
+	m.Text = *data.Text
+	m.Description = *data.Description
+	m.TopicID = *data.TopicID
+	m.CreatedBy = *data.UserId
+
 	_, err := r.DB.NewInsert().Model(m).Exec(c)
 	if err != nil {
 		return nil, err
 	}
+
 	return m, nil
 }
 
@@ -88,14 +84,12 @@ func (r *Repository) ListQuestion(c context.Context,
 	return ms, nil
 }
 
-func (r *Repository) DeleteQuestion(c context.Context, id, userID int) error {
-	m, err := r.QuestionByID(c, id)
-	if err != nil {
-		return err
-	}
-	m.DeletedAt = time.Now()
-	m.DeletedBy = userID
-	_, err = r.DB.NewUpdate().Model(m).WherePK().Exec(c)
+func (r *Repository) DeleteQuestion(ctx context.Context, id, userID int) error {
+	_, err := r.NewUpdate().Table("questions").Set(
+		"deleted_at = ?, deleted_by = ?",
+		time.Now(),
+		userID,
+	).Where("id = ?", id).Exec(ctx)
 	if err != nil {
 		return err
 	}

@@ -10,6 +10,7 @@ type Repository interface {
 	AnswerByID(c context.Context, id int) (*entity.Answer, error)
 	UpdateAnswer(c context.Context, data *Update) error
 	AnswersByQuestionID(c context.Context, questionID int) ([]entity.Answer, error)
-	DeleteAnswer(c context.Context, id, userID int) error
+	DeleteAnswer(ctx context.Context, id, userID int) error
+	CorrectAnswerByQuestionID(c context.Context, questionID int) (*entity.Answer, error)
 	Repository_()
 }

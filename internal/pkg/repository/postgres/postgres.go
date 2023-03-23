@@ -34,6 +34,7 @@ func New() *bun.DB {
 		(*entity.Answer)(nil),
 		(*entity.Variant)(nil),
 		(*entity.VariantQuestion)(nil),
+		(*entity.VariantQuestionAnswer)(nil),
 	}
 	if resetModel {
 		db.ResetModel(ctx, ms...)

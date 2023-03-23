@@ -15,13 +15,12 @@ func NewUseCase(question Question, answer Answer) *UseCase {
 	return &UseCase{Question: question, Answer: answer}
 }
 
-func (u *UseCase) Create(c context.Context, create *question_srvc.Create,
-	userID int) (*question_srvc.Detail, error) {
+func (u *UseCase) Create(c context.Context, create *question_srvc.Create) (*question_srvc.Detail, error) {
 	if create.Text == nil {
 		return nil, errors.New("text can not be null")
 	}
 
-	question, err := u.Question.CreateQuestion(c, create, userID)
+	question, err := u.Question.CreateQuestion(c, create)
 	if err != nil {
 		return nil, err
 	}
@@ -29,7 +28,7 @@ func (u *UseCase) Create(c context.Context, create *question_srvc.Create,
 	detail := question_srvc.NewDetail(question)
 
 	for _, answerCreate := range create.Answers {
-		answer, err := u.Answer.CreateAnswer(c, &answerCreate, userID, question.ID)
+		answer, err := u.Answer.CreateAnswer(c, &answerCreate, *create.UserId, question.ID)
 		if err != nil {
 			return detail, err
 		}
@@ -43,6 +42,7 @@ func (u *UseCase) GetQuestionDetailByID(c context.Context, id int) (*question_sr
 	if err != nil {
 		return nil, err
 	}
+
 	detail := question_srvc.NewDetail(question)
 	answers, err := u.Answer.AnswersByQuestionID(c, id)
 	if err != nil {

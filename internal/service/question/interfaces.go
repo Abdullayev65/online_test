@@ -6,7 +6,7 @@ import (
 )
 
 type Repository interface {
-	CreateQuestion(c context.Context, data *Create, userID int) (*entity.Question, error)
+	CreateQuestion(c context.Context, data *Create) (*entity.Question, error)
 	QuestionByID(c context.Context, id int) (*entity.Question, error)
 	QuestionByIDs(c context.Context, ids []int) ([]entity.Question, error)
 	UpdateQuestion(c context.Context, id int, data *Update) error

@@ -6,6 +6,7 @@ import (
 	topic_controller "github.com/Abdullayev65/online_test/internal/controller/v1/topic"
 	user_controller "github.com/Abdullayev65/online_test/internal/controller/v1/user"
 	variant_controller "github.com/Abdullayev65/online_test/internal/controller/v1/variant"
+	variant_question_answer_ctrl "github.com/Abdullayev65/online_test/internal/controller/v1/variant_question_answer"
 	"github.com/Abdullayev65/online_test/internal/pkg/repository/postgres"
 	answer_repo "github.com/Abdullayev65/online_test/internal/repository/postgres/answer"
 	question_repo "github.com/Abdullayev65/online_test/internal/repository/postgres/question"
@@ -13,16 +14,19 @@ import (
 	user_repo "github.com/Abdullayev65/online_test/internal/repository/postgres/user"
 	variant_repo "github.com/Abdullayev65/online_test/internal/repository/postgres/variant"
 	variant_question_repo "github.com/Abdullayev65/online_test/internal/repository/postgres/variant_question"
+	variant_question_answer_repo "github.com/Abdullayev65/online_test/internal/repository/postgres/variant_question_answer"
 	answer_srvc "github.com/Abdullayev65/online_test/internal/service/answer"
 	question_srvc "github.com/Abdullayev65/online_test/internal/service/question"
 	topic_service "github.com/Abdullayev65/online_test/internal/service/topic"
 	user_service "github.com/Abdullayev65/online_test/internal/service/user"
 	variant_srvc "github.com/Abdullayev65/online_test/internal/service/variant"
 	variant_question_srvc "github.com/Abdullayev65/online_test/internal/service/variant_question"
+	variant_question_answer_srvc "github.com/Abdullayev65/online_test/internal/service/variant_question_answer"
 	question_uc "github.com/Abdullayev65/online_test/internal/usecase/question"
 	topic_uc "github.com/Abdullayev65/online_test/internal/usecase/topic"
 	user_usecase "github.com/Abdullayev65/online_test/internal/usecase/user"
 	variant_uc "github.com/Abdullayev65/online_test/internal/usecase/variant"
+	variant_question_answer_uc "github.com/Abdullayev65/online_test/internal/usecase/variant_question_answer"
 	"github.com/Abdullayev65/online_test/internal/utill"
 	"github.com/gin-gonic/gin"
 	"time"
@@ -41,20 +45,25 @@ func main() {
 	answerRepo := answer_repo.NewRepository(db)
 	variantRepo := variant_repo.NewRepository(db)
 	variantQuestionRepo := variant_question_repo.NewRepository(db)
+	variantQuestionAnswerRepo := variant_question_answer_repo.NewRepository(db, answerRepo)
 
-	// srvc
+	// service
 	userService := user_service.NewService(userRepo)
 	topicService := topic_service.NewService(topicRepo)
 	questionService := question_srvc.NewService(questionRepo)
 	answerService := answer_srvc.NewService(answerRepo)
 	variantService := variant_srvc.NewService(variantRepo)
 	variantQuestionService := variant_question_srvc.NewService(variantQuestionRepo)
+	variantQuestionAnswerService := variant_question_answer_srvc.NewService(variantQuestionAnswerRepo)
 
 	// use case
 	userUC := user_usecase.NewUseCase(userService, token)
 	topicUC := topic_uc.NewUseCase(topicService)
 	questionUC := question_uc.NewUseCase(questionService, answerService)
-	variantUC := variant_uc.NewUseCase(variantService, variantQuestionService, questionService)
+	variantUC := variant_uc.NewUseCase(variantService, variantQuestionService,
+		questionService, answerService)
+	variantQuestionAnswerUC := variant_question_answer_uc.NewUseCase(variantQuestionAnswerService,
+		questionService, answerService, variantService)
 
 	// middleware
 	MW := middleware.New(token, userUC)
@@ -64,11 +73,12 @@ func main() {
 	topicController := topic_controller.NewController(topicUC)
 	questionController := question_controller.NewController(questionUC)
 	variantController := variant_controller.NewController(variantUC)
+	variantQuestionAnswerController := variant_question_answer_ctrl.NewController(variantQuestionAnswerUC)
 
 	// API routers
 	router := gin.Default()
 
-	user := router.Group("/user")
+	user := router.Group("user")
 	{
 		user.POST("/sign-up", userController.CreateUser)
 		user.POST("/sign-in", userController.SignIn)
@@ -105,6 +115,15 @@ func main() {
 		variant.GET("/:id", MW.SetIntFromParam("id"), variantController.GetVariantDetailByID)
 		variant.DELETE("/:id", MW.SetIntFromParam("id"), MW.UserIDFromToken,
 			variantController.DeleteVariant)
+	}
+
+	questionAnswer := router.Group("question-answer")
+	{
+		questionAnswer.POST("/test", MW.UserIDFromToken, variantQuestionAnswerController.Create)
+		questionAnswer.GET("/my-variant-answer/:variantID", MW.UserIDFromToken,
+			MW.SetIntFromParam("variantID"), variantQuestionAnswerController.GetMyVariantAnswer)
+		questionAnswer.GET("/variant-answer", MW.SetIntFromQuery("variant_id", "user_id"),
+			variantQuestionAnswerController.GetUserVariantAnswer)
 	}
 
 	// * * * * * * * * * * * * *

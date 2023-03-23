@@ -3,6 +3,7 @@ package variant_uc
 import (
 	"context"
 	"github.com/Abdullayev65/online_test/internal/entity"
+	question_srvc "github.com/Abdullayev65/online_test/internal/service/question"
 	variant_srvc "github.com/Abdullayev65/online_test/internal/service/variant"
 	"github.com/Abdullayev65/online_test/internal/utill"
 	"strconv"
@@ -13,11 +14,14 @@ type UseCase struct {
 	Variant         Variant
 	VariantQuestion VariantQuestion
 	Question        Question
+	Answer          Answer
 }
 
-func NewUseCase(variant Variant, variantQuestion VariantQuestion, question Question) *UseCase {
-	return &UseCase{Variant: variant,
-		VariantQuestion: variantQuestion, Question: question}
+func NewUseCase(variant Variant, variantQuestion VariantQuestion,
+	question Question, answer Answer) *UseCase {
+
+	return &UseCase{Variant: variant, VariantQuestion: variantQuestion,
+		Question: question, Answer: answer}
 }
 
 func (u *UseCase) GenerateVariant(c context.Context, data *variant_srvc.Create,
@@ -77,7 +81,19 @@ func (u *UseCase) GetVariantDetailByID(c context.Context, id int) (*variant_srvc
 		return detail, err
 	}
 
-	detail.AppendQuestions(questions...)
+	questionDetails := make([]question_srvc.Detail, 0)
+	for _, question := range questions {
+		answers, err := u.Answer.AnswersByQuestionID(c, question.ID)
+		if err != nil {
+			return nil, err
+		}
+
+		questionDetail := question_srvc.NewDetail(&question)
+		questionDetail.AppendAnswers(answers)
+		questionDetails = append(questionDetails, *questionDetail)
+	}
+
+	detail.Questions = questionDetails
 
 	return detail, nil
 }

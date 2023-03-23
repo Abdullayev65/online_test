@@ -13,8 +13,8 @@ func NewService(repo Repository) *Service {
 	return &Service{repo: repo}
 }
 
-func (s *Service) CreateQuestion(c context.Context, data *Create, userID int) (*entity.Question, error) {
-	return s.repo.CreateQuestion(c, data, userID)
+func (s *Service) CreateQuestion(c context.Context, data *Create) (*entity.Question, error) {
+	return s.repo.CreateQuestion(c, data)
 }
 func (s *Service) QuestionByID(c context.Context, id int) (*entity.Question, error) {
 	return s.repo.QuestionByID(c, id)

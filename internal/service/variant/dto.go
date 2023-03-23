@@ -18,10 +18,10 @@ type List struct {
 }
 
 type Detail struct {
-	ID        int                  `json:"id"`
-	Name      string               `json:"name"`
-	Questions []question_srvc.List `json:"questions"`
-	Number    int                  `json:"number"`
+	ID        int                    `json:"id"`
+	Name      string                 `json:"name"`
+	Questions []question_srvc.Detail `json:"questions"`
+	Number    int                    `json:"number"`
 }
 
 func NewDetail(m *entity.Variant) *Detail {
@@ -32,7 +32,7 @@ func NewList(m *entity.Variant) List {
 }
 
 func (d *Detail) AppendQuestion(a *entity.Question) {
-	d.Questions = append(d.Questions, *question_srvc.NewList(a))
+	d.Questions = append(d.Questions, *question_srvc.NewDetail(a))
 }
 func (d *Detail) AppendQuestions(questions ...entity.Question) {
 	for _, q := range questions {

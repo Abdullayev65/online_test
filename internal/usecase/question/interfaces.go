@@ -8,7 +8,7 @@ import (
 )
 
 type Question interface {
-	CreateQuestion(c context.Context, data *question_srvc.Create, userID int) (*entity.Question, error)
+	CreateQuestion(c context.Context, data *question_srvc.Create) (*entity.Question, error)
 	QuestionByID(c context.Context, id int) (*entity.Question, error)
 	UpdateQuestion(c context.Context, id int, data *question_srvc.Update) error
 	ListQuestion(c context.Context, size, page int) ([]entity.Question, error)

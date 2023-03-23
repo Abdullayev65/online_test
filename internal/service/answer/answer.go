@@ -28,6 +28,9 @@ func (s *Service) AnswersByQuestionID(c context.Context, questionID int) ([]enti
 func (s *Service) DeleteAnswer(c context.Context, id, userID int) error {
 	return s.repo.DeleteAnswer(c, id, userID)
 }
+func (s *Service) CorrectAnswerByQuestionID(c context.Context, questionID int) (*entity.Answer, error) {
+	return s.repo.CorrectAnswerByQuestionID(c, questionID)
+}
 func (s *Service) Service_() {
 	s.repo.Repository_()
 }

@@ -9,7 +9,7 @@ type List struct {
 	ID          int    `json:"id"`
 	Text        string `json:"text"`
 	Description string `json:"description"`
-	TopicID     int    `json:"topicID,omitempty"`
+	TopicID     int    `json:"topic_id,omitempty"`
 	Chosen      int    `json:"chosen,omitempty"`
 }
 
@@ -18,7 +18,7 @@ type Detail struct {
 	Answers     []answer_srvc.List `json:"answers"`
 	Text        string             `json:"text"`
 	Description string             `json:"description"`
-	TopicID     int                `json:"topicID"`
+	TopicID     int                `json:"topic_id"`
 	Chosen      int                `json:"chosen"`
 }
 
@@ -26,7 +26,8 @@ type Create struct {
 	Answers     []answer_srvc.Create `json:"answers"`
 	Text        *string              `json:"text,omitempty"`
 	Description *string              `json:"description,omitempty"`
-	TopicID     *int                 `json:"topicID,omitempty"`
+	TopicID     *int                 `json:"topic_id,omitempty"`
+	UserId      *int                 `json:"-"`
 }
 
 type Update struct {
@@ -36,7 +37,7 @@ type Update struct {
 	AnswerIDsDelete []int                `json:"answer_ids_delete"`
 	Text            *string              `json:"text,omitempty"`
 	Description     *string              `json:"description,omitempty"`
-	TopicID         *int                 `json:"topicID,omitempty"`
+	TopicID         *int                 `json:"topic_id,omitempty"`
 }
 
 type AnswerList struct {
@@ -52,7 +53,7 @@ func NewDetail(q *entity.Question) *Detail {
 }
 
 func (d *Detail) AppendAnswer(a *entity.Answer) {
-	d.Answers = append(d.Answers, *answer_srvc.NewList(a))
+	d.Answers = append(d.Answers, answer_srvc.NewList(a))
 }
 func (d *Detail) AppendAnswers(answers []entity.Answer) {
 	for _, a := range answers {

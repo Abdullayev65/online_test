@@ -18,15 +18,15 @@ func NewController(useCase *question_uc.UseCase) *Controller {
 func (cc *Controller) CreateQuestion(ctx *gin.Context) {
 	userID := ctx.GetInt("userID")
 	var create question_srvc.Create
+	create.UserId = &userID
 	ctx.Bind(&create)
-	topicDTO, err := cc.useCase.Create(ctx, &create, userID)
+	topicDTO, err := cc.useCase.Create(ctx, &create)
 	if err != nil {
 		response.FailErr(ctx, err)
 		return
 	}
 	response.Success(ctx, topicDTO)
 }
-
 func (cc *Controller) GetQuestionDetailByID(ctx *gin.Context) {
 	id := ctx.GetInt("id")
 	questionDetail, err := cc.useCase.GetQuestionDetailByID(ctx, id)

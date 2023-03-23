@@ -90,6 +90,18 @@ func (r *Repository) DeleteAnswer(c context.Context, id, userID int) error {
 	return err
 }
 
+func (r *Repository) CorrectAnswerByQuestionID(c context.Context,
+	questionID int) (*entity.Answer, error) {
+
+	m := new(entity.Answer)
+	err := r.DB.NewSelect().Model(m).
+		Where("question_id = ? AND is_correct = true", questionID).Scan(c)
+	if err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
 func (r *Repository) Repository_() {
 	println("just for inherits")
 }
