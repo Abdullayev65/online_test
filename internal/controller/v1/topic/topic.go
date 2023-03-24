@@ -26,7 +26,7 @@ func (cc *Controller) CreateTopic(ctx *gin.Context) {
 	}
 	response.Success(ctx, topicDTO)
 }
-func (cc *Controller) GetTopic(ctx *gin.Context) {
+func (cc *Controller) GetTopicDetail(ctx *gin.Context) {
 	id := ctx.GetInt("id")
 	topicDTO, err := cc.useCase.AdminGetTopicDetail(ctx, id)
 	if err != nil {
@@ -46,7 +46,7 @@ func (cc *Controller) UpdateTopic(ctx *gin.Context) {
 	}
 	response.Success(ctx, id)
 }
-func (cc *Controller) ListOfTopic(ctx *gin.Context) {
+func (cc *Controller) GetTopicList(ctx *gin.Context) {
 	page := ctx.GetInt("page")
 	size := ctx.GetInt("size")
 	topicList, err := cc.useCase.GetListTopic(ctx, size, page)

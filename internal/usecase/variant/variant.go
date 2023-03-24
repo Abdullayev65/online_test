@@ -54,7 +54,7 @@ func (u *UseCase) GetVariantDetail(c context.Context, id int) (*variant_srvc.Det
 	questionIDs := utill.Map(variantQuestions, func(i entity.VariantQuestion) int {
 		return *i.QuestionID
 	})
-	questions, _, err := u.Question.GetAll(c, &question_srvc.Filter{IDs: &questionIDs})
+	questions, _, err := u.Question.GetAll(c, &question_srvc.Filter{IDs: questionIDs})
 	if err != nil {
 		return detail, err
 	}
@@ -104,7 +104,7 @@ func (u *UseCase) GenerateVariant(c context.Context, data *variant_srvc.Create) 
 		})
 		questionIDs = append(questionIDs, ids...)
 	}
-	qs, _, err := u.Question.GetAll(c, &question_srvc.Filter{IDs: &questionIDs})
+	qs, _, err := u.Question.GetAll(c, &question_srvc.Filter{IDs: questionIDs})
 	if err != nil {
 		return detail, err
 	}

@@ -23,36 +23,30 @@ func (r *Repository) GetAll(c context.Context, filter *question_srvc.Filter) ([]
 	if filter.Limit != nil {
 		q.Limit(*filter.Limit)
 	}
-
 	if filter.Offset != nil {
 		q.Offset(*filter.Offset)
 	}
-
 	if filter.TopicID != nil {
 		q.WhereGroup(" and ", func(query *bun.SelectQuery) *bun.SelectQuery {
 			return query.Where("topic_id = ?", *filter.TopicID)
 		})
 	}
-
 	if filter.IDs != nil {
 		q.WhereGroup(" and ", func(query *bun.SelectQuery) *bun.SelectQuery {
 			return query.Where("id in (?)", bun.In(&filter.IDs))
 		})
 	}
-
 	if filter.Order != nil {
 		q.Order(*filter.Order)
 	} else {
 		q.Order("id desc")
 	}
-
 	if filter.CreatedBy != nil {
 		q.WhereGroup(" and ", func(query *bun.SelectQuery) *bun.SelectQuery {
 			query.Where("created_by = ?", *filter.CreatedBy)
 			return query
 		})
 	}
-
 	if filter.AllWithDeleted {
 		q.WhereAllWithDeleted()
 	} else if filter.OnlyDeleted {
@@ -67,10 +61,12 @@ func (r *Repository) GetAll(c context.Context, filter *question_srvc.Filter) ([]
 func (r *Repository) GetByID(c context.Context, id int) (*entity.Question, error) {
 	m := new(entity.Question)
 	m.ID = id
+
 	err := r.DB.NewSelect().Model(m).WherePK().Scan(c)
 	if err != nil {
 		return nil, err
 	}
+
 	return m, nil
 }
 
@@ -93,18 +89,22 @@ func (r *Repository) Create(c context.Context,
 }
 
 func (r *Repository) Update(c context.Context, data *question_srvc.Update) error {
-
 	m := new(entity.Question)
 	m.ID = data.ID
 
-	m.Text = data.Text
+	err := r.DB.NewSelect().Model(m).Where("id = ?", data.ID).Scan(c)
+
+	if data.Text != nil {
+		m.Text = data.Text
+	}
 	m.Description = data.Description
 	m.TopicID = data.TopicID
 
-	_, err := r.DB.NewUpdate().Model(m).WherePK().Exec(c)
+	_, err = r.NewUpdate().Model(m).WherePK().Exec(c)
 	if err != nil {
 		return err
 	}
+
 	return nil
 }
 
@@ -117,6 +117,7 @@ func (r *Repository) Delete(ctx context.Context, id, userID int) error {
 	if err != nil {
 		return err
 	}
+
 	return nil
 }
 

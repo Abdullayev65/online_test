@@ -36,7 +36,7 @@ func (cc *Controller) SignIn(ctx *gin.Context) {
 	}
 	response.Success(ctx, token)
 }
-func (cc *Controller) UserMe(ctx *gin.Context) {
+func (cc *Controller) GetUserMe(ctx *gin.Context) {
 	userID := ctx.GetInt("userID")
 	userDTO, err := cc.useCase.GetUserDetail(ctx, userID)
 	if err != nil {

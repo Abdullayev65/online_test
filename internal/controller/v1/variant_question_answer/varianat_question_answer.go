@@ -15,7 +15,7 @@ func NewController(useCase *uc.UseCase) *Controller {
 	return &Controller{useCase: useCase}
 }
 
-func (cc *Controller) Create(ctx *gin.Context) {
+func (cc *Controller) CreateVariantAnswer(ctx *gin.Context) {
 	userID := ctx.GetInt("userID")
 	var create srvc.Create
 	ctx.Bind(&create)
@@ -28,7 +28,7 @@ func (cc *Controller) Create(ctx *gin.Context) {
 	response.Success(ctx, dto)
 }
 
-func (cc *Controller) GetMyVariantAnswer(ctx *gin.Context) {
+func (cc *Controller) GetMyVariantAnswerDetail(ctx *gin.Context) {
 	userID := ctx.GetInt("userID")
 	variantID := ctx.GetInt("variantID")
 
@@ -39,7 +39,7 @@ func (cc *Controller) GetMyVariantAnswer(ctx *gin.Context) {
 	}
 	response.Success(ctx, dto)
 }
-func (cc *Controller) GetUserVariantAnswer(ctx *gin.Context) {
+func (cc *Controller) GetVariantAnswerDteail(ctx *gin.Context) {
 	userID := ctx.GetInt("user_id")
 	variantID := ctx.GetInt("variant_id")
 

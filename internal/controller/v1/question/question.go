@@ -27,7 +27,7 @@ func (cc *Controller) CreateQuestion(ctx *gin.Context) {
 	}
 	response.Success(ctx, topicDTO)
 }
-func (cc *Controller) GetQuestionDetailByID(ctx *gin.Context) {
+func (cc *Controller) GetQuestionDetail(ctx *gin.Context) {
 	id := ctx.GetInt("id")
 	questionDetail, err := cc.useCase.GetQuestionDetail(ctx, id)
 	if err != nil {
@@ -52,7 +52,7 @@ func (cc *Controller) UpdateQuestion(ctx *gin.Context) {
 	}
 	response.Success(ctx, id)
 }
-func (cc *Controller) List(ctx *gin.Context) {
+func (cc *Controller) GetQuestionList(ctx *gin.Context) {
 	page := ctx.GetInt("page")
 	size := ctx.GetInt("size")
 	topicList, err := cc.useCase.GetListQuestion(ctx, size, page)

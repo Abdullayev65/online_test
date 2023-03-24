@@ -52,7 +52,7 @@ type Filter struct {
 	Order          *string
 	CreatedBy      *int
 	TopicID        *int
-	IDs            *[]int
+	IDs            []int
 	AllWithDeleted bool
 	OnlyDeleted    bool
 }

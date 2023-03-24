@@ -29,7 +29,7 @@ func (cc *Controller) GenerateVariant(ctx *gin.Context) {
 	response.Success(ctx, topicDTO)
 }
 
-func (cc *Controller) GetVariantDetailByID(ctx *gin.Context) {
+func (cc *Controller) GetVariantDetail(ctx *gin.Context) {
 	id := ctx.GetInt("id")
 
 	detail, err := cc.useCase.GetVariantDetail(ctx, id)
@@ -53,7 +53,7 @@ func (cc *Controller) DeleteVariant(ctx *gin.Context) {
 	response.Success(ctx, "deleted!")
 }
 
-func (cc *Controller) List(ctx *gin.Context) {
+func (cc *Controller) GetVariantList(ctx *gin.Context) {
 	page := ctx.GetInt("page")
 	size := ctx.GetInt("size")
 

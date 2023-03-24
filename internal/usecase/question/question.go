@@ -22,11 +22,13 @@ func (u *UseCase) GetListQuestion(c context.Context, size int, page int) ([]ques
 	if err != nil {
 		return nil, err
 	}
+
 	dtos := make([]question_srvc.Detail, 0)
 	for _, question := range list {
 		t := question
 		dtos = append(dtos, *question_srvc.NewDetail(&t))
 	}
+
 	return dtos, nil
 }
 func (u *UseCase) GetQuestionDetail(c context.Context, id int) (*question_srvc.Detail, error) {

@@ -86,7 +86,7 @@ func main() {
 	{
 		user.POST("/sign-up", userController.CreateUser)
 		user.POST("/sign-in", userController.SignIn)
-		user.GET("/me", MW.UserIDFromToken, userController.UserMe)
+		user.GET("/me", MW.UserIDFromToken, userController.GetUserMe)
 		user.PUT("/", MW.UserIDFromToken, userController.UpdateUser)
 	}
 
@@ -94,9 +94,9 @@ func main() {
 	{
 		topic.POST("/", MW.UserIDFromToken, topicController.CreateTopic)
 		topic.GET("/list", MW.SetIntFromQuery("page", "size"),
-			topicController.ListOfTopic)
+			topicController.GetTopicList)
 		topic.GET("/:id", MW.SetIntFromParam("id"),
-			topicController.GetTopic)
+			topicController.GetTopicDetail)
 		topic.PUT("/:id", MW.SetIntFromParam("id"),
 			topicController.UpdateTopic)
 		topic.DELETE("/:id", MW.SetIntFromParam("id"),
@@ -106,8 +106,8 @@ func main() {
 	question := router.Group("question")
 	{
 		question.POST("/", MW.UserIDFromToken, questionController.CreateQuestion)
-		question.GET("/list", MW.SetIntFromQuery("page", "size"), questionController.List)
-		question.GET("/:id", MW.SetIntFromParam("id"), questionController.GetQuestionDetailByID)
+		question.GET("/list", MW.SetIntFromQuery("page", "size"), questionController.GetQuestionList)
+		question.GET("/:id", MW.SetIntFromParam("id"), questionController.GetQuestionDetail)
 		question.PUT("/:id", MW.SetIntFromParam("id"), questionController.UpdateQuestion)
 		question.DELETE("/:id", MW.SetIntFromParam("id"), questionController.DeleteQuestion)
 	}
@@ -115,19 +115,19 @@ func main() {
 	variant := router.Group("variant")
 	{
 		variant.POST("/generate", MW.UserIDFromToken, variantController.GenerateVariant)
-		variant.GET("/list", MW.SetIntFromQuery("page", "size"), variantController.List)
-		variant.GET("/:id", MW.SetIntFromParam("id"), variantController.GetVariantDetailByID)
+		variant.GET("/list", MW.SetIntFromQuery("page", "size"), variantController.GetVariantList)
+		variant.GET("/:id", MW.SetIntFromParam("id"), variantController.GetVariantDetail)
 		variant.DELETE("/:id", MW.SetIntFromParam("id"), MW.UserIDFromToken,
 			variantController.DeleteVariant)
 	}
 
 	questionAnswer := router.Group("question-answer")
 	{
-		questionAnswer.POST("/test", MW.UserIDFromToken, variantQuestionAnswerController.Create)
+		questionAnswer.POST("/test", MW.UserIDFromToken, variantQuestionAnswerController.CreateVariantAnswer)
 		questionAnswer.GET("/my-variant-answer/:variantID", MW.UserIDFromToken,
-			MW.SetIntFromParam("variantID"), variantQuestionAnswerController.GetMyVariantAnswer)
+			MW.SetIntFromParam("variantID"), variantQuestionAnswerController.GetMyVariantAnswerDetail)
 		questionAnswer.GET("/variant-answer", MW.SetIntFromQuery("variant_id", "user_id"),
-			variantQuestionAnswerController.GetUserVariantAnswer)
+			variantQuestionAnswerController.GetVariantAnswerDteail)
 	}
 
 	// * * * * * * * * * * * * *
