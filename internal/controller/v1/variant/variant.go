@@ -32,7 +32,7 @@ func (cc *Controller) GenerateVariant(ctx *gin.Context) {
 func (cc *Controller) GetVariantDetailByID(ctx *gin.Context) {
 	id := ctx.GetInt("id")
 
-	detail, err := cc.useCase.GetVariantDetailByID(ctx, id)
+	detail, err := cc.useCase.GetVariantDetail(ctx, id)
 	if err != nil {
 		response.FailErr(ctx, err)
 		return
@@ -57,7 +57,7 @@ func (cc *Controller) List(ctx *gin.Context) {
 	page := ctx.GetInt("page")
 	size := ctx.GetInt("size")
 
-	lists, err := cc.useCase.ListVariant(ctx, size, page)
+	lists, err := cc.useCase.GetListVariant(ctx, size, page)
 	if err != nil {
 		response.FailErr(ctx, err)
 		return

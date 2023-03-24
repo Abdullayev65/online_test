@@ -19,7 +19,7 @@ func (cc *Controller) CreateTopic(ctx *gin.Context) {
 	userID := ctx.GetInt("userID")
 	var create topic_service.Create
 	ctx.Bind(&create)
-	topicDTO, err := cc.useCase.Create(ctx, &create, userID)
+	topicDTO, err := cc.useCase.AdminCreateTopic(ctx, &create, userID)
 	if err != nil {
 		response.FailErr(ctx, err)
 		return
@@ -28,7 +28,7 @@ func (cc *Controller) CreateTopic(ctx *gin.Context) {
 }
 func (cc *Controller) GetTopic(ctx *gin.Context) {
 	id := ctx.GetInt("id")
-	topicDTO, err := cc.useCase.TopicByID(ctx, id)
+	topicDTO, err := cc.useCase.AdminGetTopicDetail(ctx, id)
 	if err != nil {
 		response.FailErr(ctx, err)
 		return
@@ -39,7 +39,7 @@ func (cc *Controller) UpdateTopic(ctx *gin.Context) {
 	id := ctx.GetInt("id")
 	var update topic_service.Update
 	ctx.Bind(&update)
-	err := cc.useCase.UpdateTopic(ctx, id, &update)
+	err := cc.useCase.AdminUpdateTopic(ctx, id, &update)
 	if err != nil {
 		response.FailErr(ctx, err)
 		return
@@ -49,7 +49,7 @@ func (cc *Controller) UpdateTopic(ctx *gin.Context) {
 func (cc *Controller) ListOfTopic(ctx *gin.Context) {
 	page := ctx.GetInt("page")
 	size := ctx.GetInt("size")
-	topicList, err := cc.useCase.ListTopic(ctx, size, page)
+	topicList, err := cc.useCase.GetListTopic(ctx, size, page)
 	if err != nil {
 		response.FailErr(ctx, err)
 		return

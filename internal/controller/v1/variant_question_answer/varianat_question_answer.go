@@ -20,7 +20,7 @@ func (cc *Controller) Create(ctx *gin.Context) {
 	var create srvc.Create
 	ctx.Bind(&create)
 	create.UserID = &userID
-	dto, err := cc.useCase.Create(ctx, &create)
+	dto, err := cc.useCase.CreateVariantQuestionAnswer(ctx, &create)
 	if err != nil {
 		response.FailErr(ctx, err)
 		return
@@ -32,7 +32,7 @@ func (cc *Controller) GetMyVariantAnswer(ctx *gin.Context) {
 	userID := ctx.GetInt("userID")
 	variantID := ctx.GetInt("variantID")
 
-	dto, err := cc.useCase.VariantAnswerByUserIDAndVariantID(ctx, userID, variantID)
+	dto, err := cc.useCase.GetVariantAnswerByUserIDAndVariantID(ctx, userID, variantID)
 	if err != nil {
 		response.FailErr(ctx, err)
 		return
@@ -43,7 +43,7 @@ func (cc *Controller) GetUserVariantAnswer(ctx *gin.Context) {
 	userID := ctx.GetInt("user_id")
 	variantID := ctx.GetInt("variant_id")
 
-	dto, err := cc.useCase.VariantAnswerByUserIDAndVariantID(ctx, userID, variantID)
+	dto, err := cc.useCase.GetVariantAnswerByUserIDAndVariantID(ctx, userID, variantID)
 	if err != nil {
 		response.FailErr(ctx, err)
 		return

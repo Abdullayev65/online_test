@@ -8,15 +8,15 @@ import (
 )
 
 type UseCase struct {
-	Svc Topic
+	Topic Topic
 }
 
-func NewUseCase(svc Topic) *UseCase {
-	return &UseCase{Svc: svc}
+func NewUseCase(topic Topic) *UseCase {
+	return &UseCase{Topic: topic}
 }
 
-func (u *UseCase) ListTopic(c context.Context, offset int, limit int) ([]topic_srvc.TopicDetail, error) {
-	listTopic, count, err := u.Svc.GetAll(c, &topic_srvc.Filter{Offset: &offset, Limit: &limit})
+func (u *UseCase) GetListTopic(c context.Context, offset int, limit int) ([]topic_srvc.TopicDetail, error) {
+	listTopic, count, err := u.Topic.GetAll(c, &topic_srvc.Filter{Offset: &offset, Limit: &limit})
 	if err != nil {
 		return nil, err
 	}
@@ -33,39 +33,40 @@ func (u *UseCase) ListTopic(c context.Context, offset int, limit int) ([]topic_s
 	}
 	return dtos, nil
 }
-func (u *UseCase) TopicByID(c context.Context, id int) (*topic_srvc.TopicDetail, error) {
-	topic, err := u.Svc.GetByID(c, id)
+
+/* Admin */
+
+func (u *UseCase) AdminGetTopicDetail(c context.Context, id int) (*topic_srvc.TopicDetail, error) {
+	topic, err := u.Topic.GetByID(c, id)
 	if err != nil {
 		return nil, err
 	}
 	dto := topic_srvc.NewDetail(topic)
 	return dto, nil
 }
-func (u *UseCase) Create(c context.Context, create *topic_srvc.Create, userID int) (*topic_srvc.TopicDetail, error) {
+func (u *UseCase) AdminCreateTopic(c context.Context, create *topic_srvc.Create, userID int) (*topic_srvc.TopicDetail, error) {
 	if create.Name == nil {
 		return nil, errors.New("name can not be null or blank")
 	}
 	topic := &entity.Topic{Name: create.Name}
 	topic.CreatedBy = &userID
-	err := u.Svc.Create(c, topic)
+	err := u.Topic.Create(c, topic)
 	if err != nil {
 		return nil, err
 	}
 	dto := topic_srvc.NewDetail(topic)
 	return dto, nil
 }
-func (u *UseCase) UpdateTopic(c context.Context, id int, update *topic_srvc.Update) error {
+func (u *UseCase) AdminUpdateTopic(c context.Context, id int, update *topic_srvc.Update) error {
 	if update.Name == nil {
 		return errors.New("nothing to update")
 	}
-	err := u.Svc.Update(c, id, update)
+	err := u.Topic.Update(c, id, update)
 	if err != nil {
 		return err
 	}
 	return nil
 }
-
-/* Admin */
 func (u *UseCase) AdminDeleteTopic(c context.Context, id int, userID int) error {
-	return u.Svc.Delete(c, id, userID)
+	return u.Topic.Delete(c, id, userID)
 }

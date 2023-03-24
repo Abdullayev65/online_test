@@ -26,6 +26,56 @@ func NewUseCase(variant Variant, variantQuestion VariantQuestion,
 		Question: question, Answer: answer}
 }
 
+func (u *UseCase) GetListVariant(c context.Context, size, page int) ([]variant_srvc.List, error) {
+	variantList, _, err := u.Variant.GetAll(c, &variant_srvc.Filter{Limit: &size, Offset: &page})
+	if err != nil {
+		return nil, err
+	}
+
+	lists := utill.Map(variantList, func(i entity.Variant) variant_srvc.List {
+		return variant_srvc.NewList(&i)
+	})
+
+	return lists, nil
+}
+
+func (u *UseCase) GetVariantDetail(c context.Context, id int) (*variant_srvc.Detail, error) {
+	variant, err := u.Variant.GetByID(c, id)
+	if err != nil {
+		return nil, err
+	}
+
+	detail := variant_srvc.NewDetail(variant)
+	variantQuestions, _, err := u.VariantQuestion.GetAll(c, &variant_question_srvc.Filter{VariantID: &id})
+	if err != nil {
+		return detail, err
+	}
+
+	questionIDs := utill.Map(variantQuestions, func(i entity.VariantQuestion) int {
+		return *i.QuestionID
+	})
+	questions, _, err := u.Question.GetAll(c, &question_srvc.Filter{IDs: &questionIDs})
+	if err != nil {
+		return detail, err
+	}
+
+	questionDetails := make([]question_srvc.Detail, 0)
+	for _, question := range questions {
+		answers, _, err := u.Answer.GetAll(c, &answer_srvc.Filter{QuestionID: &question.ID})
+		if err != nil {
+			return nil, err
+		}
+
+		questionDetail := question_srvc.NewDetail(&question)
+		questionDetail.AppendAnswers(answers)
+		questionDetails = append(questionDetails, *questionDetail)
+	}
+
+	detail.Questions = questionDetails
+
+	return detail, nil
+}
+
 func (u *UseCase) GenerateVariant(c context.Context, data *variant_srvc.Create) (*variant_srvc.Detail, error) {
 
 	if data.Name == nil {
@@ -63,56 +113,6 @@ func (u *UseCase) GenerateVariant(c context.Context, data *variant_srvc.Create) 
 	return detail, nil
 }
 
-func (u *UseCase) GetVariantDetailByID(c context.Context, id int) (*variant_srvc.Detail, error) {
-	variant, err := u.Variant.GetByID(c, id)
-	if err != nil {
-		return nil, err
-	}
-
-	detail := variant_srvc.NewDetail(variant)
-	variantQuestions, _, err := u.VariantQuestion.GetAll(c, &variant_question_srvc.Filter{VariantID: &id})
-	if err != nil {
-		return detail, err
-	}
-
-	questionIDs := utill.Map(variantQuestions, func(i entity.VariantQuestion) int {
-		return *i.QuestionID
-	})
-	questions, _, err := u.Question.GetAll(c, &question_srvc.Filter{IDs: &questionIDs})
-	if err != nil {
-		return detail, err
-	}
-
-	questionDetails := make([]question_srvc.Detail, 0)
-	for _, question := range questions {
-		answers, _, err := u.Answer.GetAll(c, &answer_srvc.Filter{QuestionID: &question.ID})
-		if err != nil {
-			return nil, err
-		}
-
-		questionDetail := question_srvc.NewDetail(&question)
-		questionDetail.AppendAnswers(answers)
-		questionDetails = append(questionDetails, *questionDetail)
-	}
-
-	detail.Questions = questionDetails
-
-	return detail, nil
-}
-
 func (u *UseCase) DeleteVariant(c context.Context, variantID, userID int) error {
 	return u.Variant.Delete(c, variantID, userID)
-}
-
-func (u *UseCase) ListVariant(c context.Context, size, page int) ([]variant_srvc.List, error) {
-	variantList, _, err := u.Variant.GetAll(c, &variant_srvc.Filter{Limit: &size, Offset: &page})
-	if err != nil {
-		return nil, err
-	}
-
-	lists := utill.Map(variantList, func(i entity.Variant) variant_srvc.List {
-		return variant_srvc.NewList(&i)
-	})
-
-	return lists, nil
 }

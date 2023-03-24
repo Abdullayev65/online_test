@@ -8,18 +8,18 @@ import (
 )
 
 type UseCase struct {
-	Svc      VariantQuestionAnswer
-	Question Question
-	Answer   Answer
-	Variant  Variant
+	QuestionAnswer VariantQuestionAnswer
+	Question       Question
+	Answer         Answer
+	Variant        Variant
 }
 
 func NewUseCase(svc VariantQuestionAnswer, question Question,
 	answer Answer, variant Variant) *UseCase {
-	return &UseCase{Svc: svc, Answer: answer, Variant: variant, Question: question}
+	return &UseCase{QuestionAnswer: svc, Answer: answer, Variant: variant, Question: question}
 }
 
-func (u *UseCase) Create(c context.Context, create *srvc.Create) (*srvc.QuestionAnswerDTO, error) {
+func (u *UseCase) CreateVariantQuestionAnswer(c context.Context, create *srvc.Create) (*srvc.QuestionAnswerDTO, error) {
 
 	if create.AnswerID == nil {
 		return nil, errors.New("answer_id can not be null")
@@ -31,7 +31,7 @@ func (u *UseCase) Create(c context.Context, create *srvc.Create) (*srvc.Question
 		return nil, errors.New("variant_id can not be null")
 	}
 
-	questionAnswer, err := u.Svc.Create(c, create)
+	questionAnswer, err := u.QuestionAnswer.Create(c, create)
 	if err != nil {
 		return nil, err
 	}
@@ -50,7 +50,7 @@ func (u *UseCase) Create(c context.Context, create *srvc.Create) (*srvc.Question
 	return dto, nil
 }
 
-func (u *UseCase) VariantAnswerByUserIDAndVariantID(c context.Context, userID,
+func (u *UseCase) GetVariantAnswerByUserIDAndVariantID(c context.Context, userID,
 	variantID int) (*srvc.UserVariantAnswer, error) {
 
 	variant, err := u.Variant.GetByID(c, variantID)
@@ -58,7 +58,7 @@ func (u *UseCase) VariantAnswerByUserIDAndVariantID(c context.Context, userID,
 		return nil, err
 	}
 
-	variantQuestionAnswers, _, err := u.Svc.GetAll(c, &srvc.Filter{UserID: &userID, VariantID: &variantID})
+	variantQuestionAnswers, _, err := u.QuestionAnswer.GetAll(c, &srvc.Filter{UserID: &userID, VariantID: &variantID})
 	if err != nil {
 		return nil, err
 	}

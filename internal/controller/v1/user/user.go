@@ -38,19 +38,19 @@ func (cc *Controller) SignIn(ctx *gin.Context) {
 }
 func (cc *Controller) UserMe(ctx *gin.Context) {
 	userID := ctx.GetInt("userID")
-	user, err := cc.useCase.UserByID(ctx, userID)
+	userDTO, err := cc.useCase.GetUserDetail(ctx, userID)
 	if err != nil {
 		response.FailErr(ctx, err)
 		return
 	}
-	userDTO := user_service.NewUserDetail(user)
+
 	response.Success(ctx, userDTO)
 }
 func (cc *Controller) UpdateUser(ctx *gin.Context) {
 	userID := ctx.GetInt("userID")
 	var update user_service.Update
 	ctx.Bind(&update)
-	err := cc.useCase.UserUpdate(ctx, userID, &update)
+	err := cc.useCase.UpdateUser(ctx, userID, &update)
 	if err != nil {
 		response.FailErr(ctx, err)
 		return
