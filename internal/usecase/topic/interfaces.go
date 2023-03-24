@@ -7,10 +7,10 @@ import (
 )
 
 type Topic interface {
-	CreateTopic(c context.Context, ent *entity.Topic) error
-	TopicByID(c context.Context, id int) (*entity.Topic, error)
-	UpdateTopic(c context.Context, id int, update *topic_srvc.Update) error
-	ListTopic(c context.Context, size, page int) ([]entity.Topic, error)
-	DeleteTopic(c context.Context, id, userID int) error
+	Create(c context.Context, ent *entity.Topic) error
+	GetByID(c context.Context, id int) (*entity.Topic, error)
+	Update(c context.Context, id int, update *topic_srvc.Update) error
+	GetAll(c context.Context, filter *topic_srvc.Filter) ([]entity.Topic, int, error)
+	Delete(c context.Context, id, userID int) error
 	Service_()
 }

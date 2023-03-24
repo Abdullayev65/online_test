@@ -6,9 +6,9 @@ import (
 )
 
 type Repository interface {
-	CreateVariantQuestion(c context.Context, data *Create, variantID int) ([]entity.VariantQuestion, error)
-	VariantQuestionByID(c context.Context, id int) (*entity.VariantQuestion, error)
-	VariantQuestionByVariantID(c context.Context, variantID int) ([]entity.VariantQuestion, error)
-	DeleteVariantQuestion(c context.Context, id int) error
+	GetAll(c context.Context, filter *Filter) ([]entity.VariantQuestion, int, error)
+	GetById(c context.Context, id int) (*entity.VariantQuestion, error)
+	Create(c context.Context, data *Create) ([]entity.VariantQuestion, error)
+	Delete(c context.Context, id int) error
 	Repository_()
 }

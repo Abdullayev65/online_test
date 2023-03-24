@@ -10,13 +10,13 @@ type List struct {
 	Type     int    `json:"type,omitempty"`
 }
 type Create struct {
-	Username string `json:"username"`
-	Password string `json:"password"`
-	Type     int    `json:"type"`
+	Username *string `json:"username"`
+	Password *string `json:"password"`
+	Type     *int    `json:"type"`
 }
 type SignIn struct {
-	Username string `json:"username"`
-	Password string `json:"password"`
+	Username *string `json:"username"`
+	Password *string `json:"password"`
 }
 type Update struct {
 	ID       *int    `json:"id"`
@@ -24,11 +24,18 @@ type Update struct {
 	Password *string `json:"password"`
 }
 type Detail struct {
-	ID       int    `json:"id"`
-	Username string `json:"username"`
-	Type     int    `json:"type"`
+	ID       *int    `json:"id"`
+	Username *string `json:"username"`
+	Type     *int    `json:"type"`
+}
+type Filter struct {
+	Limit          *int
+	Offset         *int
+	Order          *string
+	AllWithDeleted bool
+	OnlyDeleted    bool
 }
 
 func NewUserDetail(u *entity.User) *Detail {
-	return &Detail{ID: u.ID, Username: u.Username, Type: u.Type}
+	return &Detail{ID: &u.ID, Username: u.Username, Type: u.Type}
 }

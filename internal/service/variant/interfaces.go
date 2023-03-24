@@ -6,9 +6,9 @@ import (
 )
 
 type Repository interface {
-	CreateVariant(c context.Context, data *Create, userID int) (*entity.Variant, error)
-	VariantByID(c context.Context, id int) (*entity.Variant, error)
-	ListVariant(c context.Context, size, page int) ([]entity.Variant, error)
-	DeleteVariant(c context.Context, id, userID int) error
+	GetAll(c context.Context, filter *Filter) ([]entity.Variant, int, error)
+	GetByID(c context.Context, id int) (*entity.Variant, error)
+	Create(c context.Context, data *Create) (*entity.Variant, error)
+	Delete(c context.Context, id, userID int) error
 	Repository_()
 }

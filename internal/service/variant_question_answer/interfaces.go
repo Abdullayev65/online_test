@@ -6,7 +6,7 @@ import (
 )
 
 type Repository interface {
-	Create(c context.Context, data *Create, userID int) (*entity.VariantQuestionAnswer, error)
-	GetByUserIDAndVariantID(c context.Context, userID, variantID int) ([]entity.VariantQuestionAnswer, error)
+	GetAll(c context.Context, filter *Filter) ([]entity.VariantQuestionAnswer, int, error)
+	Create(c context.Context, data *Create) (*entity.VariantQuestionAnswer, error)
 	Repository_()
 }

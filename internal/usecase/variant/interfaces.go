@@ -3,29 +3,31 @@ package variant_uc
 import (
 	"context"
 	"github.com/Abdullayev65/online_test/internal/entity"
+	answer_srvc "github.com/Abdullayev65/online_test/internal/service/answer"
+	question_srvc "github.com/Abdullayev65/online_test/internal/service/question"
 	variant_srvc "github.com/Abdullayev65/online_test/internal/service/variant"
 	variant_question_srvc "github.com/Abdullayev65/online_test/internal/service/variant_question"
 )
 
 type Variant interface {
-	CreateVariant(c context.Context, data *variant_srvc.Create, userID int) (*entity.Variant, error)
-	VariantByID(c context.Context, id int) (*entity.Variant, error)
-	ListVariant(c context.Context, size, page int) ([]entity.Variant, error)
-	DeleteVariant(c context.Context, id, userID int) error
+	GetAll(c context.Context, filter *variant_srvc.Filter) ([]entity.Variant, int, error)
+	GetByID(c context.Context, id int) (*entity.Variant, error)
+	Create(c context.Context, data *variant_srvc.Create) (*entity.Variant, error)
+	Delete(c context.Context, id, userID int) error
 	Service_()
 }
 type VariantQuestion interface {
-	CreateVariantQuestion(c context.Context, data *variant_question_srvc.Create, variantID int) ([]entity.VariantQuestion, error)
-	VariantQuestionByID(c context.Context, id int) (*entity.VariantQuestion, error)
-	VariantQuestionByVariantID(c context.Context, variantID int) ([]entity.VariantQuestion, error)
-	DeleteVariantQuestion(c context.Context, id int) error
+	GetAll(c context.Context, filter *variant_question_srvc.Filter) ([]entity.VariantQuestion, int, error)
+	GetByID(c context.Context, id int) (*entity.VariantQuestion, error)
+	Create(c context.Context, data *variant_question_srvc.Create) ([]entity.VariantQuestion, error)
+	Delete(c context.Context, id int) error
 	Service_()
 }
 type Question interface {
-	QuestionByIDs(c context.Context, ids []int) ([]entity.Question, error)
+	GetAll(c context.Context, filter *question_srvc.Filter) ([]entity.Question, int, error)
 	Service_()
 }
 type Answer interface {
-	AnswersByQuestionID(c context.Context, questionID int) ([]entity.Answer, error)
+	GetAll(c context.Context, filter *answer_srvc.Filter) ([]entity.Answer, int, error)
 	Service_()
 }

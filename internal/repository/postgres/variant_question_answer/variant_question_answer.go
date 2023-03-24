@@ -5,7 +5,7 @@ import (
 	"errors"
 	"github.com/Abdullayev65/online_test/internal/entity"
 	answer_srvc "github.com/Abdullayev65/online_test/internal/service/answer"
-	variant_question_answer_srvc "github.com/Abdullayev65/online_test/internal/service/variant_question_answer"
+	srvc "github.com/Abdullayev65/online_test/internal/service/variant_question_answer"
 	"github.com/uptrace/bun"
 )
 
@@ -18,10 +18,51 @@ func NewRepository(DB *bun.DB, answerRepo answer_srvc.Repository) *Repository {
 	return &Repository{DB: DB, AnswerRepo: answerRepo}
 }
 
-func (r Repository) Create(c context.Context, data *variant_question_answer_srvc.Create,
-	userID int) (*entity.VariantQuestionAnswer, error) {
+//impls
 
-	answers, err := r.AnswerRepo.AnswersByQuestionID(c, *data.QuestionID)
+func (r Repository) GetAll(c context.Context, filter *srvc.Filter) ([]entity.VariantQuestionAnswer, int, error) {
+	var list []entity.VariantQuestionAnswer
+	q := r.NewSelect().Model(&list)
+
+	if filter.UserID != nil {
+		q.WhereGroup(" AND ", func(query *bun.SelectQuery) *bun.SelectQuery {
+			return query.Where("created_by = ?", *filter.UserID)
+		})
+	}
+
+	if filter.VariantID != nil {
+		q.WhereGroup(" AND ", func(query *bun.SelectQuery) *bun.SelectQuery {
+			return query.Where("variant_id = ?", *filter.VariantID)
+		})
+	}
+
+	if filter.Limit != nil {
+		q.Limit(*filter.Limit)
+	}
+
+	if filter.Offset != nil {
+		q.Offset(*filter.Offset)
+	}
+
+	if filter.Order != nil {
+		q.Order(*filter.Order)
+	} else {
+		q.Order("id desc")
+	}
+
+	if filter.AllWithDeleted {
+		q.WhereAllWithDeleted()
+	} else if filter.OnlyDeleted {
+		q.WhereDeleted()
+	}
+
+	count, err := q.ScanAndCount(c)
+
+	return list, count, err
+}
+
+func (r Repository) Create(c context.Context, data *srvc.Create) (*entity.VariantQuestionAnswer, error) {
+	answers, _, err := r.AnswerRepo.GetAll(c, &answer_srvc.Filter{QuestionID: data.QuestionID})
 	if err != nil {
 		return nil, err
 	}
@@ -37,24 +78,12 @@ func (r Repository) Create(c context.Context, data *variant_question_answer_srvc
 		return nil, errors.New("answer in question not found")
 	}
 
-	m := &entity.VariantQuestionAnswer{QuestionID: *data.QuestionID, VariantID: *data.VariantID,
-		AnswerID: *data.AnswerID, IsCorrect: answer.IsCorrect}
-	m.CreatedBy = userID
+	m := &entity.VariantQuestionAnswer{QuestionID: data.QuestionID, VariantID: data.VariantID,
+		AnswerID: data.AnswerID, IsCorrect: answer.IsCorrect}
+	m.CreatedBy = data.UserID
 
 	_, err = r.DB.NewInsert().Model(m).Exec(c)
 	return m, err
-}
-
-func (r Repository) GetByUserIDAndVariantID(c context.Context, userID,
-	variantID int) ([]entity.VariantQuestionAnswer, error) {
-
-	ms := make([]entity.VariantQuestionAnswer, 0)
-
-	err := r.DB.NewSelect().Model(&ms).
-		Where("created_by = ? AND variant_id = ?", userID, variantID).
-		Scan(c)
-
-	return ms, err
 }
 
 func (r Repository) Repository_() {

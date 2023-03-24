@@ -59,7 +59,7 @@ func (cc *Controller) ListOfTopic(ctx *gin.Context) {
 func (cc *Controller) DeleteTopic(ctx *gin.Context) {
 	userID := ctx.GetInt("userID")
 	id := ctx.GetInt("id")
-	err := cc.useCase.DeleteTopic(ctx, id, userID)
+	err := cc.useCase.AdminDeleteTopic(ctx, id, userID)
 	if err != nil {
 		response.FailErr(ctx, err)
 		return

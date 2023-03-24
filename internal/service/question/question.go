@@ -13,23 +13,20 @@ func NewService(repo Repository) *Service {
 	return &Service{repo: repo}
 }
 
-func (s *Service) CreateQuestion(c context.Context, data *Create) (*entity.Question, error) {
-	return s.repo.CreateQuestion(c, data)
+func (s *Service) GetAll(c context.Context, filter *Filter) ([]entity.Question, int, error) {
+	return s.repo.GetAll(c, filter)
 }
-func (s *Service) QuestionByID(c context.Context, id int) (*entity.Question, error) {
-	return s.repo.QuestionByID(c, id)
+func (s *Service) GetByID(c context.Context, id int) (*entity.Question, error) {
+	return s.repo.GetByID(c, id)
 }
-func (s *Service) QuestionByIDs(c context.Context, ids []int) ([]entity.Question, error) {
-	return s.repo.QuestionByIDs(c, ids)
+func (s *Service) Create(c context.Context, data *Create) (*entity.Question, error) {
+	return s.repo.Create(c, data)
 }
-func (s *Service) UpdateQuestion(c context.Context, id int, data *Update) error {
-	return s.repo.UpdateQuestion(c, id, data)
+func (s *Service) Update(c context.Context, data *Update) error {
+	return s.repo.Update(c, data)
 }
-func (s *Service) ListQuestion(c context.Context, size, page int) ([]entity.Question, error) {
-	return s.repo.ListQuestion(c, size, page)
-}
-func (s *Service) DeleteQuestion(c context.Context, id, userID int) error {
-	return s.repo.DeleteQuestion(c, id, userID)
+func (s *Service) Delete(c context.Context, id, userID int) error {
+	return s.repo.Delete(c, id, userID)
 }
 func (s *Service) Service_() {
 	s.repo.Repository_()

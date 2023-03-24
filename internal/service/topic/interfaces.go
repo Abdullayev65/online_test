@@ -6,10 +6,10 @@ import (
 )
 
 type Repository interface {
-	CreateTopic(c context.Context, ent *entity.Topic) error
-	TopicByID(c context.Context, id int) (*entity.Topic, error)
-	UpdateTopic(c context.Context, id int, update *Update) error
-	ListTopic(c context.Context, size, page int) ([]entity.Topic, error)
-	DeleteTopic(c context.Context, id, userID int) error
+	GetAll(ctx context.Context, filter *Filter) ([]entity.Topic, int, error)
+	GetByID(c context.Context, id int) (*entity.Topic, error)
+	Create(c context.Context, ent *entity.Topic) error
+	Update(c context.Context, id int, update *Update) error
+	Delete(c context.Context, id, userID int) error
 	Repository_()
 }

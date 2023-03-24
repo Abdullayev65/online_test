@@ -6,11 +6,11 @@ import (
 )
 
 type Repository interface {
-	CreateAnswer(c context.Context, data *Create, userID, questionID int) (*entity.Answer, error)
-	AnswerByID(c context.Context, id int) (*entity.Answer, error)
-	UpdateAnswer(c context.Context, data *Update) error
-	AnswersByQuestionID(c context.Context, questionID int) ([]entity.Answer, error)
-	DeleteAnswer(ctx context.Context, id, userID int) error
+	GetAll(c context.Context, filter *Filter) ([]entity.Answer, int, error)
+	GetByID(c context.Context, id int) (*entity.Answer, error)
+	Create(c context.Context, data *Create) (*entity.Answer, error)
+	Update(c context.Context, data *Update) error
+	Delete(ctx context.Context, id, userID int) error
 	CorrectAnswerByQuestionID(c context.Context, questionID int) (*entity.Answer, error)
 	Repository_()
 }

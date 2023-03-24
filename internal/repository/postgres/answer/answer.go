@@ -16,29 +16,48 @@ func NewRepository(DB *bun.DB) *Repository {
 	return &Repository{DB: DB}
 }
 
-func (r *Repository) CreateAnswer(c context.Context, data *answer_srvc.Create,
-	userID, questionID int) (*entity.Answer, error) {
+func (r *Repository) GetAll(c context.Context, filter *answer_srvc.Filter) ([]entity.Answer, int, error) {
+	var list []entity.Answer
+	q := r.NewSelect().Model(&list)
 
-	m := new(entity.Answer)
-	if data.Text != nil {
-		m.Text = *data.Text
+	if filter.Limit != nil {
+		q.Limit(*filter.Limit)
 	}
-	if data.Description != nil {
-		m.Description = *data.Description
+
+	if filter.Offset != nil {
+		q.Offset(*filter.Offset)
 	}
-	if data.IsCorrect != nil {
-		m.IsCorrect = *data.IsCorrect
+
+	if filter.QuestionID != nil {
+		q.WhereGroup(" and ", func(query *bun.SelectQuery) *bun.SelectQuery {
+			return query.Where("question_id = ?", *filter.QuestionID)
+		})
 	}
-	m.CreatedBy = userID
-	m.QuestionID = questionID
-	_, err := r.DB.NewInsert().Model(m).Exec(c)
-	if err != nil {
-		return nil, err
+
+	if filter.Order != nil {
+		q.Order(*filter.Order)
+	} else {
+		q.Order("id desc")
 	}
-	return m, nil
+
+	if filter.CreatedBy != nil {
+		q.WhereGroup(" and ", func(query *bun.SelectQuery) *bun.SelectQuery {
+			query.Where("created_by = ?", *filter.CreatedBy)
+			return query
+		})
+	}
+
+	if filter.AllWithDeleted {
+		q.WhereAllWithDeleted()
+	} else if filter.OnlyDeleted {
+		q.WhereDeleted()
+	}
+
+	count, err := q.ScanAndCount(c)
+
+	return list, count, err
 }
-
-func (r *Repository) AnswerByID(c context.Context, id int) (*entity.Answer, error) {
+func (r *Repository) GetByID(c context.Context, id int) (*entity.Answer, error) {
 
 	m := new(entity.Answer)
 	m.ID = id
@@ -48,21 +67,28 @@ func (r *Repository) AnswerByID(c context.Context, id int) (*entity.Answer, erro
 	}
 	return m, nil
 }
+func (r *Repository) Create(c context.Context, data *answer_srvc.Create) (*entity.Answer, error) {
 
-func (r *Repository) UpdateAnswer(c context.Context, data *answer_srvc.Update) error {
+	m := new(entity.Answer)
+	m.Text = data.Text
+	m.Description = data.Description
+	m.IsCorrect = data.IsCorrect
+	m.CreatedBy = data.UserID
+	m.QuestionID = data.QuestionID
+	_, err := r.DB.NewInsert().Model(m).Exec(c)
+	if err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+func (r *Repository) Update(c context.Context, data *answer_srvc.Update) error {
 
 	m := new(entity.Answer)
 	m.ID = data.ID
 
-	if data.Text != nil {
-		m.Text = *data.Text
-	}
-	if data.Description != nil {
-		m.Description = *data.Description
-	}
-	if data.IsCorrect != nil {
-		m.IsCorrect = *data.IsCorrect
-	}
+	m.Text = data.Text
+	m.Description = data.Description
+	m.IsCorrect = data.IsCorrect
 
 	_, err := r.DB.NewUpdate().Model(m).WherePK().Exec(c)
 	if err != nil {
@@ -70,26 +96,18 @@ func (r *Repository) UpdateAnswer(c context.Context, data *answer_srvc.Update) e
 	}
 	return nil
 }
-
-func (r *Repository) AnswersByQuestionID(c context.Context, questionID int) ([]entity.Answer, error) {
-
-	ms := make([]entity.Answer, 0)
-	err := r.DB.NewSelect().Model(&ms).Where("question_id = ?", questionID).Scan(c)
-
-	return ms, err
-}
-
-func (r *Repository) DeleteAnswer(c context.Context, id, userID int) error {
-	m, err := r.AnswerByID(c, id)
+func (r *Repository) Delete(c context.Context, id, userID int) error {
+	m, err := r.GetByID(c, id)
 	if err != nil {
 		return err
 	}
 	m.DeletedAt = time.Now()
-	m.DeletedBy = userID
+	m.DeletedBy = &userID
 	_, err = r.DB.NewUpdate().Model(m).WherePK().Exec(c)
 	return err
 }
 
+// spesfic functions
 func (r *Repository) CorrectAnswerByQuestionID(c context.Context,
 	questionID int) (*entity.Answer, error) {
 

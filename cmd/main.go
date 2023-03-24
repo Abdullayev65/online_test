@@ -16,6 +16,7 @@ import (
 	variant_question_repo "github.com/Abdullayev65/online_test/internal/repository/postgres/variant_question"
 	variant_question_answer_repo "github.com/Abdullayev65/online_test/internal/repository/postgres/variant_question_answer"
 	answer_srvc "github.com/Abdullayev65/online_test/internal/service/answer"
+	file_srvc "github.com/Abdullayev65/online_test/internal/service/file"
 	question_srvc "github.com/Abdullayev65/online_test/internal/service/question"
 	topic_service "github.com/Abdullayev65/online_test/internal/service/topic"
 	user_service "github.com/Abdullayev65/online_test/internal/service/user"
@@ -48,6 +49,7 @@ func main() {
 	variantQuestionAnswerRepo := variant_question_answer_repo.NewRepository(db, answerRepo)
 
 	// service
+	fileService := file_srvc.New()
 	userService := user_service.NewService(userRepo)
 	topicService := topic_service.NewService(topicRepo)
 	questionService := question_srvc.NewService(questionRepo)
@@ -59,7 +61,7 @@ func main() {
 	// use case
 	userUC := user_usecase.NewUseCase(userService, token)
 	topicUC := topic_uc.NewUseCase(topicService)
-	questionUC := question_uc.NewUseCase(questionService, answerService)
+	questionUC := question_uc.NewUseCase(questionService, answerService, fileService)
 	variantUC := variant_uc.NewUseCase(variantService, variantQuestionService,
 		questionService, answerService)
 	variantQuestionAnswerUC := variant_question_answer_uc.NewUseCase(variantQuestionAnswerService,
@@ -77,6 +79,8 @@ func main() {
 
 	// API routers
 	router := gin.Default()
+
+	router.Static("/media", "./media")
 
 	user := router.Group("user")
 	{

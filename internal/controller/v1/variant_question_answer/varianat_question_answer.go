@@ -19,7 +19,8 @@ func (cc *Controller) Create(ctx *gin.Context) {
 	userID := ctx.GetInt("userID")
 	var create srvc.Create
 	ctx.Bind(&create)
-	dto, err := cc.useCase.Create(ctx, &create, userID)
+	create.UserID = &userID
+	dto, err := cc.useCase.Create(ctx, &create)
 	if err != nil {
 		response.FailErr(ctx, err)
 		return

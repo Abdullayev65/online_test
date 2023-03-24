@@ -19,7 +19,9 @@ func (cc *Controller) GenerateVariant(ctx *gin.Context) {
 	userID := ctx.GetInt("userID")
 	var create variant_srvc.Create
 	ctx.Bind(&create)
-	topicDTO, err := cc.useCase.GenerateVariant(ctx, &create, userID)
+	create.UserID = &userID
+
+	topicDTO, err := cc.useCase.GenerateVariant(ctx, &create)
 	if err != nil {
 		response.FailErr(ctx, err)
 		return

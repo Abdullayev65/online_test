@@ -3,7 +3,7 @@ package variant_repo
 import (
 	"context"
 	"github.com/Abdullayev65/online_test/internal/entity"
-	variant_srvc "github.com/Abdullayev65/online_test/internal/service/variant"
+	"github.com/Abdullayev65/online_test/internal/service/variant"
 	"github.com/uptrace/bun"
 	"time"
 )
@@ -16,20 +16,38 @@ func NewRepository(DB *bun.DB) *Repository {
 	return &Repository{DB: DB}
 }
 
-func (r *Repository) CreateVariant(c context.Context, data *variant_srvc.Create, userID int) (*entity.Variant, error) {
-	m := new(entity.Variant)
-	if data.Name != nil {
-		m.Name = *data.Name
+// impl
+
+func (r *Repository) GetAll(c context.Context, filter *variant_srvc.Filter) ([]entity.Variant, int, error) {
+	var list []entity.Variant
+	q := r.NewSelect().Model(&list)
+
+	if filter.Limit != nil {
+		q.Limit(*filter.Limit)
 	}
-	m.CreatedBy = userID
-	_, err := r.DB.NewInsert().Model(m).Exec(c)
-	if err != nil {
-		return nil, err
+
+	if filter.Offset != nil {
+		q.Offset(*filter.Offset)
 	}
-	return m, nil
+
+	if filter.Order != nil {
+		q.Order(*filter.Order)
+	} else {
+		q.Order("id desc")
+	}
+
+	if filter.AllWithDeleted {
+		q.WhereAllWithDeleted()
+	} else if filter.OnlyDeleted {
+		q.WhereDeleted()
+	}
+
+	count, err := q.ScanAndCount(c)
+
+	return list, count, err
 }
 
-func (r *Repository) VariantByID(c context.Context, id int) (*entity.Variant, error) {
+func (r *Repository) GetByID(c context.Context, id int) (*entity.Variant, error) {
 	m := new(entity.Variant)
 	m.ID = id
 	err := r.DB.NewSelect().Model(m).WherePK().Scan(c)
@@ -39,20 +57,26 @@ func (r *Repository) VariantByID(c context.Context, id int) (*entity.Variant, er
 	return m, nil
 }
 
-func (r *Repository) ListVariant(c context.Context, size, page int) ([]entity.Variant, error) {
-	ms := make([]entity.Variant, 0)
-	err := r.DB.NewSelect().Model(&ms).Limit(size).
-		Offset((size - 1) * page).Order("id").Scan(c)
-	return ms, err
+func (r *Repository) Create(c context.Context, data *variant_srvc.Create) (*entity.Variant, error) {
+
+	m := new(entity.Variant)
+	m.Name = data.Name
+
+	m.CreatedBy = data.UserID
+	_, err := r.DB.NewInsert().Model(m).Exec(c)
+	if err != nil {
+		return nil, err
+	}
+	return m, nil
 }
 
-func (r *Repository) DeleteVariant(c context.Context, id, userID int) error {
-	m, err := r.VariantByID(c, id)
+func (r *Repository) Delete(c context.Context, id, userID int) error {
+	m, err := r.GetByID(c, id)
 	if err != nil {
 		return err
 	}
 	m.DeletedAt = time.Now()
-	m.DeletedBy = userID
+	m.DeletedBy = &userID
 	_, err = r.DB.NewUpdate().Model(m).WherePK().Exec(c)
 	if err != nil {
 		return err

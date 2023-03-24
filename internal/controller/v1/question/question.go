@@ -41,7 +41,11 @@ func (cc *Controller) UpdateQuestion(ctx *gin.Context) {
 	id := ctx.GetInt("id")
 	var update question_srvc.Update
 	ctx.Bind(&update)
-	err := cc.useCase.UpdateQuestion(ctx, id, &update, userID)
+
+	update.ID = id
+	update.UserID = &userID
+
+	err := cc.useCase.UpdateQuestion(ctx, &update)
 	if err != nil {
 		response.FailErr(ctx, err)
 		return
@@ -61,7 +65,7 @@ func (cc *Controller) List(ctx *gin.Context) {
 func (cc *Controller) DeleteQuestion(ctx *gin.Context) {
 	userID := ctx.GetInt("userID")
 	id := ctx.GetInt("id")
-	err := cc.useCase.DeleteQuestion(ctx, id, userID)
+	err := cc.useCase.Delete(ctx, id, userID)
 	if err != nil {
 		response.FailErr(ctx, err)
 		return

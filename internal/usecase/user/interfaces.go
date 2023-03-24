@@ -7,9 +7,9 @@ import (
 )
 
 type User interface {
-	UserByUsername(c context.Context, username string) (*entity.User, error)
-	UserByID(c context.Context, userID int) (*entity.User, error)
-	UserUpdate(c context.Context, userID int, user *user.Update) error
-	AddUser(c context.Context, user *entity.User) error
+	GetByUsername(c context.Context, username string) (*entity.User, error)
+	GetByID(c context.Context, userID int) (*entity.User, error)
+	Update(c context.Context, userID int, user *user.Update) error
+	Create(c context.Context, user *entity.User) error
 	Service_()
 }

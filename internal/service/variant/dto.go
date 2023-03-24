@@ -9,26 +9,35 @@ import (
 type Create struct {
 	Name      *string                   `json:"name,omitempty"`
 	Questions []variant_question.Create `json:"questions"`
+	UserID    *int                      `json:"-"`
 }
 
 type List struct {
-	ID     int    `json:"id"`
-	Name   string `json:"name"`
-	Number int    `json:"number"`
+	ID     *int    `json:"id"`
+	Name   *string `json:"name"`
+	Number *int    `json:"number"`
 }
 
 type Detail struct {
-	ID        int                    `json:"id"`
-	Name      string                 `json:"name"`
+	ID        *int                   `json:"id"`
+	Name      *string                `json:"name"`
 	Questions []question_srvc.Detail `json:"questions"`
-	Number    int                    `json:"number"`
+	Number    *int                   `json:"number"`
+}
+
+type Filter struct {
+	Limit          *int
+	Offset         *int
+	Order          *string
+	AllWithDeleted bool
+	OnlyDeleted    bool
 }
 
 func NewDetail(m *entity.Variant) *Detail {
-	return &Detail{ID: m.ID, Name: m.Name, Number: m.Number}
+	return &Detail{ID: &m.ID, Name: m.Name, Number: m.Number}
 }
 func NewList(m *entity.Variant) List {
-	return List{ID: m.ID, Name: m.Name, Number: m.Number}
+	return List{ID: &m.ID, Name: m.Name, Number: m.Number}
 }
 
 func (d *Detail) AppendQuestion(a *entity.Question) {

@@ -5,8 +5,9 @@ import "github.com/uptrace/bun"
 type Question struct {
 	bun.BaseModel `bun:"table:question"`
 	BasicEntityID
-	Text        string `bun:",nullzero,notnull"`
-	Description string `bun:",nullzero"`
-	TopicID     int    `bun:",nullzero"`
-	Chosen      int    `bun:",notnull"`
+	Text        *string `bun:"text,nullzero,notnull"`
+	Description *string `bun:"description,nullzero"`
+	ImagePath   *string `bun:"image_path"`
+	TopicID     *int    `bun:"topic_id,nullzero"`
+	Chosen      *int    `bun:"chosen,notnull"`
 }

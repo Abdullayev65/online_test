@@ -13,20 +13,20 @@ func NewService(repo Repository) *Service {
 	return &Service{repo: repo}
 }
 
-func (s *Service) CreateVariant(c context.Context, data *Create, userID int) (*entity.Variant, error) {
-	return s.repo.CreateVariant(c, data, userID)
+func (s *Service) GetAll(c context.Context, filter *Filter) ([]entity.Variant, int, error) {
+	return s.repo.GetAll(c, filter)
 }
 
-func (s *Service) VariantByID(c context.Context, id int) (*entity.Variant, error) {
-	return s.repo.VariantByID(c, id)
+func (s *Service) GetByID(c context.Context, id int) (*entity.Variant, error) {
+	return s.repo.GetByID(c, id)
 }
 
-func (s *Service) ListVariant(c context.Context, size, page int) ([]entity.Variant, error) {
-	return s.repo.ListVariant(c, size, page)
+func (s *Service) Create(c context.Context, data *Create) (*entity.Variant, error) {
+	return s.repo.Create(c, data)
 }
 
-func (s *Service) DeleteVariant(c context.Context, id, userID int) error {
-	return s.repo.DeleteVariant(c, id, userID)
+func (s *Service) Delete(c context.Context, id, userID int) error {
+	return s.repo.Delete(c, id, userID)
 }
 
 func (s *Service) Service_() {

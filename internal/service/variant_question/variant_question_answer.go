@@ -13,20 +13,20 @@ func NewService(repo Repository) *Service {
 	return &Service{repo: repo}
 }
 
-func (s *Service) CreateVariantQuestion(c context.Context, data *Create, variantID int) ([]entity.VariantQuestion, error) {
-	return s.repo.CreateVariantQuestion(c, data, variantID)
+func (s *Service) Create(c context.Context, data *Create) ([]entity.VariantQuestion, error) {
+	return s.repo.Create(c, data)
 }
 
-func (s *Service) VariantQuestionByID(c context.Context, id int) (*entity.VariantQuestion, error) {
-	return s.repo.VariantQuestionByID(c, id)
+func (s *Service) GetByID(c context.Context, id int) (*entity.VariantQuestion, error) {
+	return s.repo.GetById(c, id)
 }
 
-func (s *Service) VariantQuestionByVariantID(c context.Context, variantID int) ([]entity.VariantQuestion, error) {
-	return s.repo.VariantQuestionByVariantID(c, variantID)
+func (s *Service) GetAll(c context.Context, filter *Filter) ([]entity.VariantQuestion, int, error) {
+	return s.repo.GetAll(c, filter)
 }
 
-func (s *Service) DeleteVariantQuestion(c context.Context, id int) error {
-	return s.repo.DeleteVariantQuestion(c, id)
+func (s *Service) Delete(c context.Context, id int) error {
+	return s.repo.Delete(c, id)
 }
 
 func (s *Service) Service_() {

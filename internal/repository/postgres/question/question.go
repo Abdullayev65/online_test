@@ -16,24 +16,55 @@ func NewRepository(DB *bun.DB) *Repository {
 	return &Repository{DB: DB}
 }
 
-func (r *Repository) CreateQuestion(c context.Context,
-	data *question_srvc.Create) (*entity.Question, error) {
+func (r *Repository) GetAll(c context.Context, filter *question_srvc.Filter) ([]entity.Question, int, error) {
+	var list []entity.Question
+	q := r.NewSelect().Model(&list)
 
-	m := new(entity.Question)
-	m.Text = *data.Text
-	m.Description = *data.Description
-	m.TopicID = *data.TopicID
-	m.CreatedBy = *data.UserId
-
-	_, err := r.DB.NewInsert().Model(m).Exec(c)
-	if err != nil {
-		return nil, err
+	if filter.Limit != nil {
+		q.Limit(*filter.Limit)
 	}
 
-	return m, nil
+	if filter.Offset != nil {
+		q.Offset(*filter.Offset)
+	}
+
+	if filter.TopicID != nil {
+		q.WhereGroup(" and ", func(query *bun.SelectQuery) *bun.SelectQuery {
+			return query.Where("topic_id = ?", *filter.TopicID)
+		})
+	}
+
+	if filter.IDs != nil {
+		q.WhereGroup(" and ", func(query *bun.SelectQuery) *bun.SelectQuery {
+			return query.Where("id in (?)", bun.In(&filter.IDs))
+		})
+	}
+
+	if filter.Order != nil {
+		q.Order(*filter.Order)
+	} else {
+		q.Order("id desc")
+	}
+
+	if filter.CreatedBy != nil {
+		q.WhereGroup(" and ", func(query *bun.SelectQuery) *bun.SelectQuery {
+			query.Where("created_by = ?", *filter.CreatedBy)
+			return query
+		})
+	}
+
+	if filter.AllWithDeleted {
+		q.WhereAllWithDeleted()
+	} else if filter.OnlyDeleted {
+		q.WhereDeleted()
+	}
+
+	count, err := q.ScanAndCount(c)
+
+	return list, count, err
 }
 
-func (r *Repository) QuestionByID(c context.Context, id int) (*entity.Question, error) {
+func (r *Repository) GetByID(c context.Context, id int) (*entity.Question, error) {
 	m := new(entity.Question)
 	m.ID = id
 	err := r.DB.NewSelect().Model(m).WherePK().Scan(c)
@@ -43,27 +74,32 @@ func (r *Repository) QuestionByID(c context.Context, id int) (*entity.Question, 
 	return m, nil
 }
 
-func (r *Repository) QuestionByIDs(c context.Context, ids []int) ([]entity.Question, error) {
-	ms := make([]entity.Question, 0, len(ids))
-	err := r.DB.NewSelect().Model(&ms).Where("id in (?)", bun.In(ids)).Scan(c)
-	return ms, err
-}
-
-func (r *Repository) UpdateQuestion(c context.Context, id int,
-	data *question_srvc.Update) error {
+func (r *Repository) Create(c context.Context,
+	data *question_srvc.Create) (*entity.Question, error) {
 
 	m := new(entity.Question)
-	m.ID = id
+	m.ImagePath = &data.ImagePath
+	m.Text = data.Text
+	m.Description = data.Description
+	m.TopicID = data.TopicID
+	m.CreatedBy = data.UserId
 
-	if data.Text != nil {
-		m.Text = *data.Text
+	_, err := r.DB.NewInsert().Model(m).Exec(c)
+	if err != nil {
+		return nil, err
 	}
-	if data.Description != nil {
-		m.Description = *data.Description
-	}
-	if data.TopicID != nil {
-		m.TopicID = *data.TopicID
-	}
+
+	return m, nil
+}
+
+func (r *Repository) Update(c context.Context, data *question_srvc.Update) error {
+
+	m := new(entity.Question)
+	m.ID = data.ID
+
+	m.Text = data.Text
+	m.Description = data.Description
+	m.TopicID = data.TopicID
 
 	_, err := r.DB.NewUpdate().Model(m).WherePK().Exec(c)
 	if err != nil {
@@ -72,19 +108,7 @@ func (r *Repository) UpdateQuestion(c context.Context, id int,
 	return nil
 }
 
-func (r *Repository) ListQuestion(c context.Context,
-	size, page int) ([]entity.Question, error) {
-
-	ms := make([]entity.Question, 0)
-	err := r.DB.NewSelect().Model(&ms).Limit(size).
-		Offset((size - 1) * page).Order("id").Scan(c)
-	if err != nil {
-		return nil, err
-	}
-	return ms, nil
-}
-
-func (r *Repository) DeleteQuestion(ctx context.Context, id, userID int) error {
+func (r *Repository) Delete(ctx context.Context, id, userID int) error {
 	_, err := r.NewUpdate().Table("questions").Set(
 		"deleted_at = ?, deleted_by = ?",
 		time.Now(),

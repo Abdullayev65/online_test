@@ -19,8 +19,7 @@ func NewUseCase(svc VariantQuestionAnswer, question Question,
 	return &UseCase{Svc: svc, Answer: answer, Variant: variant, Question: question}
 }
 
-func (u *UseCase) Create(c context.Context, create *srvc.Create,
-	userID int) (*srvc.QuestionAnswerDTO, error) {
+func (u *UseCase) Create(c context.Context, create *srvc.Create) (*srvc.QuestionAnswerDTO, error) {
 
 	if create.AnswerID == nil {
 		return nil, errors.New("answer_id can not be null")
@@ -32,7 +31,7 @@ func (u *UseCase) Create(c context.Context, create *srvc.Create,
 		return nil, errors.New("variant_id can not be null")
 	}
 
-	questionAnswer, err := u.Svc.Create(c, create, userID)
+	questionAnswer, err := u.Svc.Create(c, create)
 	if err != nil {
 		return nil, err
 	}
@@ -40,12 +39,12 @@ func (u *UseCase) Create(c context.Context, create *srvc.Create,
 	dto := &srvc.QuestionAnswerDTO{IsCorrect: questionAnswer.IsCorrect,
 		CorrectAnswerID: questionAnswer.AnswerID}
 
-	if !dto.IsCorrect {
+	if !*dto.IsCorrect {
 		correctAnswer, err := u.Answer.CorrectAnswerByQuestionID(c, *create.QuestionID)
 		if err != nil {
 			return dto, err
 		}
-		dto.CorrectAnswerID = correctAnswer.ID
+		dto.CorrectAnswerID = &correctAnswer.ID
 	}
 
 	return dto, nil
@@ -54,12 +53,12 @@ func (u *UseCase) Create(c context.Context, create *srvc.Create,
 func (u *UseCase) VariantAnswerByUserIDAndVariantID(c context.Context, userID,
 	variantID int) (*srvc.UserVariantAnswer, error) {
 
-	variant, err := u.Variant.VariantByID(c, variantID)
+	variant, err := u.Variant.GetByID(c, variantID)
 	if err != nil {
 		return nil, err
 	}
 
-	variantQuestionAnswers, err := u.Svc.GetByUserIDAndVariantID(c, userID, variantID)
+	variantQuestionAnswers, _, err := u.Svc.GetAll(c, &srvc.Filter{UserID: &userID, VariantID: &variantID})
 	if err != nil {
 		return nil, err
 	}
@@ -67,12 +66,12 @@ func (u *UseCase) VariantAnswerByUserIDAndVariantID(c context.Context, userID,
 	questionAnswerList := make([]srvc.QuestionAnswerList, 0)
 
 	for _, variantQuestionAnswer := range variantQuestionAnswers {
-		question, err := u.Question.QuestionByID(c, variantQuestionAnswer.QuestionID)
+		question, err := u.Question.GetByID(c, *variantQuestionAnswer.QuestionID)
 		if err != nil {
 			return nil, err
 		}
 
-		answers, err := u.Answer.AnswersByQuestionID(c, variantQuestionAnswer.QuestionID)
+		answers, _, err := u.Answer.GetAll(c, &answer_srvc.Filter{QuestionID: variantQuestionAnswer.QuestionID})
 		if err != nil {
 			return nil, err
 		}
